@@ -1,0 +1,16 @@
+{
+	"_id": 1,
+	"title": "Lamb Soup",
+	"id": 1,
+	"ingredients": "\n-300g lamb\n-300g potato\n-300g cabbage thinly sliced",
+	"method": "Pot on low heat",
+	"macros": {
+		"carbs": 80,
+		"fat": 100,
+		"protein": 120,
+		"kj": 4000
+	},
+	"timeToPrep": 15,
+	"timeToCook": 120,
+	"image": ""
+}

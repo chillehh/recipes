@@ -39,3 +39,9 @@ netlify dev
 ```
 
 If your browser doesn't navigate to the site automatically, visit [localhost:8888](http://localhost:8888).
+
+## Tasks
+- [x] Create base landing page.
+- [ ] Create the make recipe page with addition to db.
+- [ ] Add auth for the recipe creation so only I can do that.
+- [ ] Add search functionality to the list recipes page.

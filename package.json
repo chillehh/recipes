@@ -13,9 +13,12 @@
         "blobshape": "^1.0.0",
         "bright": "^0.8.5",
         "markdown-to-jsx": "^7.4.5",
+        "mongoose": "^8.13.0",
         "next": "15.2.4",
         "react": "18.3.1",
+        "react-content-loader": "^7.0.2",
         "react-dom": "18.3.1",
+        "swr": "^2.3.3",
         "unique-names-generator": "^4.7.1"
     },
     "devDependencies": {
