@@ -154,4 +154,8 @@
             pointer-events: none;
         }
     }
+
+    svg > rect {
+        opacity: 1 !important;
+    }
 }
