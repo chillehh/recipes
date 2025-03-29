@@ -7,7 +7,7 @@ export default function CreateRecipeButton() {
 
   return (
     <button
-      onClick={() => router.push("/create-recipe")}
+      onClick={() => router.push("/create")}
       className="btn"
     >
       Create Recipe
