@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import ContentLoader from "react-content-loader";
 
-const RecipeContent = ({
+const RecipeContentLoader = ({
 	heading = { width: 200, height: 24 },
 	row = 2,
 	column = 5, // Default columns
@@ -79,4 +79,4 @@ const RecipeContent = ({
 	);
 };
 
-export default RecipeContent;
+export default RecipeContentLoader;

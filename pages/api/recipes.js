@@ -4,7 +4,6 @@ import { authOptions } from './auth/[...nextauth]';
 import client from "../../lib/db"
 
 async function getRecipes(page = 1, recipesPerPage = 15) {
-	console.log('DB URL: ', process.env.MONGODB_URI);
 	try {
 		await client.connect();
 		const database = client.db('recipes');
