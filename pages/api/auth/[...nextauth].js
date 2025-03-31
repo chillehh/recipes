@@ -2,13 +2,17 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoClient } from "mongodb";
 import bcrypt from "bcrypt";
+import { adapter } from "next/dist/server/web/adapter";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import client from "../../../lib/db"
 
-const client = new MongoClient(process.env.DATABASE_URL);
+// const client = new MongoClient(process.env.MONGODB_URI).connect();
 
 export const authOptions = {
 	session: {
 		strategy: "jwt",
 	},
+	adapter: MongoDBAdapter(await client),
 	providers: [
 		CredentialsProvider({
 		name: "Credentials",
@@ -18,7 +22,7 @@ export const authOptions = {
 		},
 		async authorize(credentials) {
 			try {
-				await client.connect();
+				await client;
 				const usersCollection = client.db("recipes").collection("users");
 
 				const user = await usersCollection.findOne({ email: credentials.email });

@@ -1,11 +1,10 @@
 import { MongoClient } from 'mongodb';
 import { getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
-
-const client = new MongoClient(process.env.DATABASE_URL);
+import client from "../../lib/db"
 
 async function getRecipes(page = 1, recipesPerPage = 15) {
-	console.log('DB URL: ', process.env.DATABASE_URL);
+	console.log('DB URL: ', process.env.MONGODB_URI);
 	try {
 		await client.connect();
 		const database = client.db('recipes');
