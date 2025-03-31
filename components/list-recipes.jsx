@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import RecipeContent from "./content-loader";
+import RecipeContentLoader from "./content-loader";
+import RecipeCard from "./recipe-card";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -38,13 +39,10 @@ const ListRecipes = () => {
     return <div>{JSON.stringify(error)}</div>;
   }
 
-  return (!data || data.items <= 0 ? <RecipeContent/> :
+  return (!data || data.items <= 0 ? <RecipeContentLoader/> :
     <div style={{ overflowY: "auto", height: "100vh" }}>
-      {data.items.map((item, index) => (
-        <div key={item.id || index}>
-          {/* Render your item content */}
-          <p>{item.name}</p>
-        </div>
+      {data.items.map((item) => (
+        <RecipeCard key={item._id} recipe={item} />
       ))}
     </div>
   );
