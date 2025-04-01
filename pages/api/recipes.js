@@ -1,9 +1,21 @@
-import { MongoClient } from 'mongodb';
+import client, { connectDB, gridfsBucket, ObjectId } from "../../lib/db";
+import multer from "multer";
+import streamifier from "streamifier";
 import { getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
-import client from "../../lib/db"
 
-async function getRecipes(page = 1, recipesPerPage = 15) {
+// Configure Multer to store files in memory (stream to GridFS)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Disable default body parsing
+export const config = {
+	api: {
+		bodyParser: false,
+	},
+};
+
+async function getRecipes(page = 1, recipesPerPage = 10) {
 	try {
 		await client.connect();
 		const database = client.db('recipes');
@@ -41,48 +53,57 @@ async function getRecipes(page = 1, recipesPerPage = 15) {
 }
 
 async function createRecipe(req, res) {
-	try {
-		const session = await getServerSession(req, res, authOptions);
-		if (!session) {
-			return { status: 401, message: "Unauthorized" };
-		}
+	const session = await getServerSession(req, res, authOptions);
+	if (!session) return res.status(401).json({ message: "Unauthorized" });
 
-		await client.connect();
-		const database = client.db('recipes');
-		const recipesCollection = database.collection('recipes');
+	return new Promise((resolve, reject) => {
+		upload.single("image")(req, res, async (err) => {
+			if (err) return reject(res.status(500).json({ message: "Image upload failed" }));
 
-		const { name, image, ingredients, method, timePrep, timeCook, macros } = req.body;
+			try {
+				const db = await connectDB();
+				const recipesCollection = db.collection("recipes");
 
-		if (!name || !ingredients || !method || !timePrep || !timeCook || !macros) {
-			return { status: 400, message: "Missing required fields" };
-		}
+				const { name, ingredients, method, timePrep, timeCook, macros } = req.body;
+				if (!name || !ingredients || !method || !timePrep || !timeCook || !macros) {
+					return res.status(400).json({ message: "Missing required fields" });
+				}
 
-		const newRecipe = {
-			name,
-			image,
-			ingredients,
-			method,
-			timePrep,
-			timeCook,
-			macros,
-			createdBy: session.user.email, // Track the user who created the recipe
-			createdAt: new Date(),
-		};
+				let imageId = null;
+				if (req.file) {
+					const uploadStream = gridfsBucket.openUploadStream(req.file.originalname, {
+					contentType: req.file.mimetype,
+					});
+					streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+					await new Promise((resolve, reject) => {
+					uploadStream.on("finish", () => {
+						imageId = uploadStream.id;
+						resolve();
+					});
+					uploadStream.on("error", reject);
+					});
+				}
 
-		const result = await recipesCollection.insertOne(newRecipe);
-		return {
-			status: 201,
-			data: result
-		};
-	} catch (error) {
-		console.error("Error creating recipe:", error);
-		return {
-			status: 500,
-			message: "Internal Server Error"
-		};
-	} finally {
-		await client.close();
-	}
+				const newRecipe = {
+					name,
+					imageId: imageId ? imageId.toString() : null,
+					ingredients: JSON.parse(ingredients),
+					method,
+					timePrep,
+					timeCook,
+					macros: JSON.parse(macros),
+					createdBy: session.user.email,
+					createdAt: new Date(),
+				};
+
+				await recipesCollection.insertOne(newRecipe);
+				resolve(res.status(201).json({ message: "Recipe created", recipe: newRecipe }));
+			} catch (error) {
+				console.error("Error creating recipe:", error);
+				reject(res.status(500).json({ message: "Internal Server Error" }));
+			}
+		});
+	});
 }
 
 export default async function handler(req, res) {
@@ -93,8 +114,7 @@ export default async function handler(req, res) {
 	}
 
 	if (req.method === "POST") {
-		const result = await createRecipe(req, res);
-		return res.status(result.status).json(result.data || { message: result.message });
+		return await createRecipe(req, res);
 	}
 
 	res.status(405).json({ message: "Method Not Allowed" });
