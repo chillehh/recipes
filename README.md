@@ -43,5 +43,5 @@ If your browser doesn't navigate to the site automatically, visit [localhost:888
 ## Tasks
 - [x] Create base landing page.
 - [x] Create the make recipe page with addition to db.
-- [ ] Add auth for the recipe creation so only I can do that.
-- [ ] Add search functionality to the list recipes page.
+- [x] Add auth for the recipe creation so only I can do that.
+- [x] Add search functionality to the list recipes page.

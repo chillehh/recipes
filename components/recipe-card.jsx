@@ -15,8 +15,8 @@ export default function RecipeCard({ recipe }) {
             >
                 {/* Image (Fallback if empty) */}
                 <div className="h-48 bg-gray-200 flex items-center justify-center">
-                    {recipe.image ? (
-                        <img src={recipe.image} alt={recipe.name} className="w-full h-full object-cover" />
+                    {recipe.imageId ? (
+                        <img src={`/api/image/${recipe.imageId}`} alt={recipe.name} />
                     ) : (
                         <span className="text-gray-500">No Image Available</span>
                     )}

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function CreateRecipe() {
 	const [recipe, setRecipe] = useState({
 		name: "",
-		image: "",
+		image: null,
 		ingredients: [],
 		method: "",
 		timePrep: "",
@@ -21,6 +21,7 @@ export default function CreateRecipe() {
 	});
 
 	const [ingredient, setIngredient] = useState({ name: "", measurement: "", notes: "" });
+	const [imagePreview, setImagePreview] = useState(null);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -55,15 +56,37 @@ export default function CreateRecipe() {
 		}));
 	};
 
+	const handleImageChange = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setRecipe((prev) => ({ ...prev, image: file }));
+			setImagePreview(URL.createObjectURL(file)); // Show a preview
+		}
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		const formData = new FormData();
+		formData.append("name", recipe.name);
+		formData.append("method", recipe.method);
+		formData.append("timePrep", recipe.timePrep);
+		formData.append("timeCook", recipe.timeCook);
+		formData.append("macros", JSON.stringify(recipe.macros));
+		formData.append("ingredients", JSON.stringify(recipe.ingredients));
+
+		if (recipe.image) {
+			formData.append("image", recipe.image);
+		}
+
 		const response = await fetch("/api/recipes", {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(recipe)
+			body: formData, // Sending FormData instead of JSON
 		});
+
 		if (response.ok) {
 			alert("Recipe created!");
+		} else {
+			alert("Error creating recipe.");
 		}
 	};
 
@@ -72,8 +95,11 @@ export default function CreateRecipe() {
 		<h1 className="text-2xl font-bold mb-4">Create Recipe</h1>
 		<form onSubmit={handleSubmit} className="space-y-4">
 			<input type="text" name="name" value={recipe.name} onChange={handleChange} placeholder="Recipe Name" className="w-full p-2 border rounded" required />
-			<input type="text" name="image" value={recipe.image} onChange={handleChange} placeholder="Image URL" className="w-full p-2 border rounded" />
 			
+			{/* Image Upload */}
+			<input type="file" accept="image/*" onChange={handleImageChange} className="w-full p-2 border rounded" />
+			{imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 rounded shadow" width="150" />}
+
 			<div className="space-y-2">
 			<h2 className="text-lg font-semibold">Ingredients</h2>
 			{recipe.ingredients.map((ing, index) => (
