@@ -14,6 +14,7 @@
         "bcrypt": "^5.1.1",
         "blobshape": "^1.0.0",
         "bright": "^0.8.5",
+        "gridfs-stream": "^1.1.1",
         "markdown-to-jsx": "^7.4.5",
         "mongodb": "^6.15.0",
         "mongoose": "^8.13.0",
